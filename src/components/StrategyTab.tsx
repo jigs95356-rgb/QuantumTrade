@@ -1,10 +1,20 @@
 import { useState } from 'react';
-import { Check, Lock, Settings } from 'lucide-react';
+import { Check, Lock, Settings, DollarSign } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import {
   mockStrategies,
   getTierForBalance,
 } from '../data/mockData';
+
+function getTierInfo(tier: number) {
+  const tiers = [
+    { name: 'Tier 1: Micro Capital', range: '$10-$20', color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' },
+    { name: 'Tier 2: Mini Capital', range: '$20-$50', color: 'bg-purple-500/20 text-purple-400 border-purple-500/50' },
+    { name: 'Tier 3: Standard Capital', range: '$50-$100', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' },
+    { name: 'Tier 4: Pro Capital', range: '$100+', color: 'bg-amber-500/20 text-amber-400 border-amber-500/50' },
+  ];
+  return tiers[Math.max(0, Math.min(tier, tiers.length - 1))];
+}
 
 export function StrategyTab() {
   const { balance, setBalance, marketType, setMarketType, selectedStrategyId, setSelectedStrategyId } =
@@ -45,50 +55,70 @@ export function StrategyTab() {
     },
   ];
 
+  const tierInfo = getTierInfo(currentTier);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="card-glass">
-        <h3 className="text-lg font-semibold text-white mb-4">Account Settings</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div>
-            <label className="block text-sm text-slate-300 mb-2">Account Balance</label>
-            <div className="flex gap-2">
+            <label className="block text-sm font-medium text-slate-200 mb-3">Account Balance</label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <DollarSign className="w-5 h-5 text-slate-400" />
+              </div>
               <input
                 type="number"
                 value={tempBalance}
                 onChange={(e) => setTempBalance(e.target.value)}
-                step="0.1"
+                step="0.01"
                 min="0"
-                className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white text-lg font-semibold focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 transition-all"
               />
+            </div>
+            <div className="flex gap-2 mt-3">
               <button
                 onClick={handleBalanceChange}
-                className="btn-primary text-sm"
+                className="btn-primary text-sm flex-1"
               >
-                Update
+                Update Balance
+              </button>
+              <button
+                onClick={() => setTempBalance(balance.toString())}
+                className="btn-secondary text-sm flex-1"
+              >
+                Reset
               </button>
             </div>
-            <p className="text-xs text-slate-400 mt-2">Current: ${balance.toFixed(2)}</p>
           </div>
+
+          <div className="pt-2">
+            <p className="text-xs text-slate-400 mb-2">Current Tier:</p>
+            <div className={`px-4 py-3 rounded-lg border ${tierInfo.color} font-semibold text-center`}>
+              {tierInfo.name}
+              <div className="text-xs opacity-80 mt-1">{tierInfo.range}</div>
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm text-slate-300 mb-2">Market Type</label>
-            <div className="flex gap-2">
+            <label className="block text-sm font-medium text-slate-200 mb-3">Market Type</label>
+            <div className="flex gap-2 bg-slate-800/30 p-1 rounded-lg">
               <button
                 onClick={() => setMarketType('futures')}
-                className={`flex-1 py-2 rounded-lg font-medium transition-all ${
+                className={`flex-1 py-2.5 rounded-md font-medium transition-all duration-200 ${
                   marketType === 'futures'
-                    ? 'bg-cyan-600 text-white'
-                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                    ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/20'
+                    : 'text-slate-400 hover:text-slate-300'
                 }`}
               >
                 Futures
               </button>
               <button
                 onClick={() => setMarketType('spot')}
-                className={`flex-1 py-2 rounded-lg font-medium transition-all ${
+                className={`flex-1 py-2.5 rounded-md font-medium transition-all duration-200 ${
                   marketType === 'spot'
-                    ? 'bg-cyan-600 text-white'
-                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                    ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/20'
+                    : 'text-slate-400 hover:text-slate-300'
                 }`}
               >
                 Spot
